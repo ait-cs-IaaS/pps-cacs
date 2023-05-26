@@ -1,0 +1,13 @@
+{
+    "timestamp": "26-05-2023 @ 09:25:03",
+    "request": "<Request 'http://192.168.10.66:4040/set_sensitivity/0.3' [POST]>",
+    "source_ip": "192.168.10.209",
+    "log_type": "ERROR",
+    "log_content": "[ERROR] Cannot parse the following supplied input: 0.3."
+}{
+    "timestamp": "26-05-2023 @ 09:26:07",
+    "request": "<Request 'http://192.168.10.66:4040/set_sensitivity/0.3' [POST]>",
+    "source_ip": "192.168.10.209",
+    "log_type": "ERROR",
+    "log_content": "[ERROR] Cannot parse the following supplied input: 0.3."
+}

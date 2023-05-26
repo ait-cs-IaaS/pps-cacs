@@ -1,0 +1,13 @@
+{
+    "timestamp": "26-05-2023 @ 09:26:42",
+    "request": "<Request 'http://192.168.10.66:4040/set_sensitivity/0.3' [POST]>",
+    "source_ip": "192.168.10.209",
+    "log_type": "INFO",
+    "log_content": "[INFO] New sensitivity threshold set to 0.3"
+}{
+    "timestamp": "26-05-2023 @ 09:27:03",
+    "request": "<Request 'http://192.168.10.66:4040/set_sensitivity/0.3' [POST]>",
+    "source_ip": "192.168.10.209",
+    "log_type": "INFO",
+    "log_content": "[INFO] New sensitivity threshold set to 0.3"
+}
