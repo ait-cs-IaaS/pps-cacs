@@ -18,26 +18,9 @@ cursor = None
 # By default skip the database creation step.
 SKIP_SETUP = True
 # If a command line argument is supplied (len(sys.argv) is always at least 1 - the program itself is an argument)
-if len(sys.argv) > 1:
+if len(sys.argv) > 1 and "initdb" in sys.argv:
     # If the user types `python3 frs.py initdb`
-    if sys.argv[1] == "initdb":
-        SKIP_SETUP = False
-    else:
-        print(
-            f"[FATAL] Unexpected user input argument supplied. Argument `{sys.argv[1]}` not recognised."
-        )
-        print(
-            f"\t[INFO] The only argument that can be supplied is `initdb`, which will recreate and reinitialise the database. By default this step is skipped when no arguments are supplied."
-        )
-        print(
-            f"\t[INFO] To run the program without recreating and initialising the db, try `python3 frs.py`"
-        )
-        print(
-            f"\t[INFO] To run the program and recreate and initialise the db, try `python3 frs.py initdb`"
-        )
-        print("[EXIT] The program will now terminate.")
-        sys.exit(0)
-
+    SKIP_SETUP = False
 
 # Define app, ip address, and port number
 app = Flask(__name__)
