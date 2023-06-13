@@ -315,11 +315,17 @@ def access_request():
     msg = f"[INFO] Attempting to authenticate access control request for Employee ID {employee_id}."
 
     try:  # Get Employee ID from DB
-        cursor.execute(
-            """SELECT pin FROM employees WHERE employee_id = (?)""", (employee_id,)
-        )
-        pin_lookup = cursor.fetchone()
-        pin_lookup = pin_lookup[0]
+        try:
+            dbconnect()
+            cursor.execute(
+                """SELECT pin FROM employees WHERE employee_id = (?)""", (employee_id,)
+            )
+            pin_lookup = cursor.fetchone()
+            pin_lookup = pin_lookup[0]
+        except:
+            auth_result = 0
+            msg = msg + " " + "[ERROR] Cannot select data. Check connection to database..."
+            log('db_conn.log', req, src_ip, 2, msg)
         try:  # Encode and send face to Facial Recognition System for analysis
             with open("tmp_face.jpg", "rb") as image_file:
                 encoded_image = base64.b64encode(image_file.read()).decode("utf-8")
