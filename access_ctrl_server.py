@@ -166,7 +166,7 @@ def setup_db():
     msg = ''
     
     if request.authorization:
-        print(request)
+        # print(request)
         username = request.authorization.username
         password = request.authorization.password
         
@@ -292,11 +292,13 @@ def set_sensitivity(threshold):
 #                   pin:int - the pin of the employee attempting to gain access
 #                   image:b64(*.jpg) - base64-encoded bytestring of face image of the employee attempting to gain access
 # Returns:			JSON(auth_result:int,message:str) - the JSON encoded integer authentication result, 0=FAIL, 1=SUCCESS, and a message explaining the reason for the result
-# Expected Action:	Receive ID, PIN, and Image, lookup the ID in the database, sned image to the Facial Recognition System (FRS), ensure FRS ID returns matching ID, check PIN, return result and/or open door
+# Expected Action:	Receive ID, PIN, and Image, lookup the ID in the database, send image to the Facial Recognition System (FRS), ensure FRS ID returns matching ID, check PIN, return result and/or open door
 @app.route('/access_request', methods=['POST'])
 def access_request():
     global cursor
     global sensitivity_threshold
+    face_check = 0
+    pin_check = 0
     auth_result = 0
     # TODO: authentication logic here
     req = str(request)
@@ -315,37 +317,77 @@ def access_request():
 
     msg = f'[INFO] Attempting to authenticate access control request for Employee ID {employee_id}.'
     
+    # Employee Lookup
     try: # Get Employee ID from DB
         cursor.execute('''SELECT pin FROM employees WHERE employee_id = (?)''', (employee_id,))
         pin_lookup = cursor.fetchone()
         pin_lookup = pin_lookup[0]
-        try: # Encode and send face to Facial Recognition System for analysis 
-            with open("tmp_face.jpg", "rb") as image_file:
-                encoded_image = base64.b64encode(image_file.read()).decode('utf-8')
-            data = {"image":encoded_image}
-            url = 'http://' + str(frs_ip) + ':' + str(frs_port) + '/match'
-            response = requests.post(url, json=data)
-            
-            frs_resp = response.json()
-            frs_ID = frs_resp['data'][0]
-            frs_score = frs_resp['data'][1]
-            
-            if (frs_ID == employee_id) & (frs_score > sensitivity_threshold):
-                try: # Check PINs match
-                    if employee_pin == pin_lookup:
-                        auth_result = 1
-                        msg = msg + ' ' + f'[SUCCESS] Successfully authenticated Employee {employee_id}.'
-                    else:
-                        auth_result = 0
-                        msg = msg + ' ' + f'[FAIL] Incorrect PIN for Employee {employee_id}.'
-                except:
-                    msg = msg + ' ' + f'[FAIL] Incorrect PIN for Employee {employee_id}.'
-            else: 
-                raise Exception
-        except:
-            msg = msg + ' ' + f'[FAIL] Facial Recognition System failed to recognise Employee {employee_id}.'
     except:
+        auth_result = 0
         msg = msg + ' ' + f'[FAIL] Employee ID {employee_id} not found in database.'
+        # Log the result.
+        log('access.log', req, src_ip, 1, msg)
+        return jsonify(auth_result=auth_result, message=msg)
+
+    try: # Encode and send face to Facial Recognition System for analysis 
+        with open("tmp_face.jpg", "rb") as image_file:
+            encoded_image = base64.b64encode(image_file.read()).decode('utf-8')
+        data = {"image":encoded_image}
+        url = 'http://' + str(frs_ip) + ':' + str(frs_port) + '/match'
+        response = requests.post(url, json=data)
+        
+        frs_resp = response.json()
+        frs_ID = frs_resp['data'][0]
+        frs_score = frs_resp['data'][1]
+        # print(f'frs_ID:{frs_ID} && frs_score:{frs_score} && employee_id:{employee_id}')
+        # print('frs_ID:', type(frs_ID), ' && frs_score:', type(frs_score), ' && employee_id:', type(employee_id))
+        
+        # Facial Recognition Check
+        if frs_ID == int(employee_id):
+            face_check = 1
+        else:
+            face_check = 0
+            auth_result = 0
+            msg = msg + ' ' + f'[FAIL] Facial Recognition System could not recognise face for Employee {employee_id}.'
+            # Log the result.
+            log('access.log', req, src_ip, 1, msg)
+            return jsonify(auth_result=auth_result, message=msg)
+    except:
+        auth_result = 0
+        msg = msg + ' ' + f'[FAIL] Error during Facial Recognition System lookup for Employee {employee_id}.'
+        # Log the result.
+        log('access.log', req, src_ip, 1, msg)
+        return jsonify(auth_result=auth_result, message=msg)
+    
+    # Pin check
+    try: # Check PINs match
+        if employee_pin == pin_lookup:
+            pin_check = 1
+        else:
+            auth_result = 0
+            msg = msg + ' ' + f'[FAIL] Incorrect PIN for Employee {employee_id}.'
+            # Log the result.
+            log('access.log', req, src_ip, 1, msg)
+            return jsonify(auth_result=auth_result, message=msg)
+    except:
+        msg = msg + ' ' + f'[FAIL] Error checking PIN for Employee {employee_id}.'
+         # Log the result.
+        log('access.log', req, src_ip, 1, msg)
+        return jsonify(auth_result=auth_result, message=msg)
+            
+    if face_check & pin_check:
+        auth_result = 1
+        msg = msg + ' ' + f'[SUCCESS] Employee {employee_id} successfully authenticated. Access granted.'
+         # Log the result.
+        log('access.log', req, src_ip, 0, msg)
+        return jsonify(auth_result=auth_result, message=msg)
+    else: 
+        msg = msg + ' ' + '[FAIL] Authentication Failure - check pin or try again...'
+        auth_result = 0
+         # Log the result.
+        log('access.log', req, src_ip, 1, msg)
+        return jsonify(auth_result=auth_result, message=msg)
+   
 
     # Log the result.
     log('access.log', req, src_ip, 0, msg)
