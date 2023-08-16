@@ -156,7 +156,7 @@ def setup_db():
     msg = ""
 
     if request.authorization:
-        print(request)
+        # print(request)
         username = request.authorization.username
         password = request.authorization.password
 
@@ -447,5 +447,6 @@ if __name__ == "__main__":
     else:
         print("[INFO] Skipping database initialisation.")
     flask_msg = "[FLASK] Starting Flask Server..."
+    
     log("system_state.log", "__main__", "localhost", 0, flask_msg)
     app.run()
