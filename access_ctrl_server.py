@@ -10,7 +10,6 @@ import base64
 import requests
 
 
-
 # Define DB objects
 conn = None
 cursor = None
@@ -19,60 +18,53 @@ cursor = None
 # By default skip the database creation step.
 SKIP_SETUP = True
 # If a command line argument is supplied (len(sys.argv) is always at least 1 - the program itself is an argument)
-if len(sys.argv) > 1:
+if len(sys.argv) > 1 and "initdb" in sys.argv:
     # If the user types `python3 frs.py initdb`
-    if sys.argv[1] == "initdb":
-        SKIP_SETUP = False
-    else:
-        print(f'[FATAL] Unexpected user input argument supplied. Argument `{sys.argv[1]}` not recognised.')
-        print(f'\t[INFO] The only argument that can be supplied is `initdb`, which will recreate and reinitialise the database. By default this step is skipped when no arguments are supplied.')
-        print(f'\t[INFO] To run the program without recreating and initialising the db, try `python3 frs.py`')
-        print(f'\t[INFO] To run the program and recreate and initialise the db, try `python3 frs.py initdb`')
-        print('[EXIT] The program will now terminate.')
-        sys.exit(0)
-
+    SKIP_SETUP = False
 
 # Define app, ip address, and port number
 app = Flask(__name__)
-ip_addr =  '192.168.10.66'
-port = 4040
+# ip_addr =  '192.168.10.66'
+# port = 4040
 
 # Facial Recognition System (used for requests later)
-frs_ip = '192.168.10.209'
+frs_ip = "192.168.10.209"
 frs_port = 4410
 
 sensitivity_threshold = 0.8
+
 
 # Route for default request @ http://{ip_addr}:{port}/
 # Requires:         None
 # Returns:          message:JSON - Information message identifying the program.
 # Expected Action:  Returns a fairly standard default JSON message to the request
-@app.route('/')
+@app.route("/")
 def hello():
-    return jsonify(message='[INFO] Connection established to the Central Access Control System. Please use API commands.')
+    return jsonify(
+        message="[INFO] Connection established to the Central Access Control System. Please use API commands."
+    )
 
 
 # Function to log to `all.log` and a specific file of the user's choosing
 # Requires:         filename:string - the filename of the user-chosen log
-#					request:string - the request that is being processed,
+# 					request:string - the request that is being processed,
 #                                       use `ip_addr` (this machine's IP if it's just an internal method call)
-#					src_ip:string - the source ip address that made the request - can be 127.0.0.1 if an internal call (e.g. auth.log)
-#					log_type:int - a number representing the type of log, 0=INFO, 1=ERROR, 2=FATAL
+# 					src_ip:string - the source ip address that made the request - can be 127.0.0.1 if an internal call (e.g. auth.log)
+# 					log_type:int - a number representing the type of log, 0=INFO, 1=ERROR, 2=FATAL
 # 					content:string - data to be written to the file
 # Returns:          return_code:int - a return code for the logging attempt, 0=FAIL, 1=SUCCESS
 # Expected Action:  Open log file, write JSON data, close file
 def log(filename, request, src_ip, log_type, content):
+    filename = "log/" + filename
 
-    filename = 'log/' + filename
-    
-    return_code = 0 # Default = FAIL
-    
+    return_code = 0  # Default = FAIL
+
     # Get timestamp
     date_time = datetime.now()
     timestamp = date_time.strftime("%d-%m-%Y @ %H:%M:%S")
-    
+
     # Set the string for the log_type
-    
+
     # log_type = 0 # info - information including authentication success and failure
     # log_type = 1 # error - errors in program execution
     # log_type = 2 # fatal - fatal errors that cause the program to exit/shutdown
@@ -85,23 +77,23 @@ def log(filename, request, src_ip, log_type, content):
     else:
         print("[ERROR] Error writing to log file!")
         return return_code
-    
+
     req = str(request)
     ip = str(src_ip)
     log_content = content
 
     log_entry = {
-        "timestamp":timestamp,
-        "request":req,
-        "source_ip":ip, 
-        "log_type":str_log_type,
-        "log_content":log_content
+        "timestamp": timestamp,
+        "request": req,
+        "source_ip": ip,
+        "log_type": str_log_type,
+        "log_content": log_content,
     }
     log_entry_dump = json.dumps(log_entry, indent=4)
 
     # Write to master log
     try:
-        with open('log/all.log', 'a') as file:
+        with open("log/all.log", "a") as file:
             file.write(log_entry_dump)
             file.close()
             return_code = 1
@@ -110,49 +102,48 @@ def log(filename, request, src_ip, log_type, content):
 
     # Write to individual log
     try:
-        with open(filename, 'a') as file:
+        with open(filename, "a") as file:
             file.write(log_entry_dump)
             file.close()
             return_code = 1
     except:
         print("[ERROR] Error writing to log file!")
-    
+
     pprint.pprint(log_entry)
 
     return return_code
 
 
 # Function for authenticating requests to this system. NOT authentication logic for physical access.
-# Requires:			username:string - a username to lookup in the database 
-#					password:string - a password for the given username in the database
-# Returns:			auth_result:int - 0 = authentication failed, 1 = authentication successful 
-# Expected Action:	Hash the given password, lookup the pre-hashed password in the db for the username provided, compare the two, log (info) and return auth_result 
+# Requires:			username:string - a username to lookup in the database
+# 					password:string - a password for the given username in the database
+# Returns:			auth_result:int - 0 = authentication failed, 1 = authentication successful
+# Expected Action:	Hash the given password, lookup the pre-hashed password in the db for the username provided, compare the two, log (info) and return auth_result
 def authenticate_request(username, password):
-
     req = "internal_method_call"
-    src_ip = ip_addr
+    src_ip = "localhost"
 
-    msg = f'[ATTEMPT] Attempted login for user: {username}...'
-    
+    msg = f"[ATTEMPT] Attempted login for user: {username}..."
+
     # Check for blank requests
     if username is None or password is None:
-        msg = msg + ' ' + '[FAIL] Username or password was not provided.'
-        log('auth.log', req, src_ip, 0, msg)
+        msg = msg + " " + "[FAIL] Username or password was not provided."
+        log("auth.log", req, src_ip, 0, msg)
         return 0
     global cursor
-    cursor.execute('''SELECT password FROM auth WHERE username = (?);''', (username,))
+    cursor.execute("""SELECT password FROM auth WHERE username = (?);""", (username,))
     retrieved_password = cursor.fetchone()
     retrieved_password = retrieved_password[0]
-    hashpass = hashlib.md5(password.encode('utf8')).hexdigest()
-    #print(hashpass, retrieved_password)
+    hashpass = hashlib.md5(password.encode("utf8")).hexdigest()
+    # print(hashpass, retrieved_password)
     if hashpass != retrieved_password:
         auth_result = 0
-        msg = msg + ' ' + '[FAIL] Incorrect username or password provided.'
+        msg = msg + " " + "[FAIL] Incorrect username or password provided."
     else:
         auth_result = 1
-        msg = msg + ' ' + f'[SUCCESS] Authenticated successfully for user: {username}.'
-    
-    log('auth.log', req, src_ip, 0, msg)
+        msg = msg + " " + f"[SUCCESS] Authenticated successfully for user: {username}."
+
+    log("auth.log", req, src_ip, 0, msg)
     return auth_result
 
 
@@ -160,77 +151,85 @@ def authenticate_request(username, password):
 # Requires:			None, but requests are authenticated unless called from within the program (here)
 # Returns:			JSON(msg:string)
 # Expected Action:	Authenticate request, execute query, logs
-@app.route('/setup_db', methods=['GET','POST'])
+@app.route("/setup_db", methods=["GET", "POST"])
 def setup_db():
-    
-    msg = ''
-    
+    msg = ""
+
     if request.authorization:
         # print(request)
         username = request.authorization.username
         password = request.authorization.password
-        
+
         req = str(request)
         src_ip = str(request.remote_addr)
 
-        msg = msg + ' ' + '[INFO] DB creation requested...'
-        msg = msg + ' ' + '[INFO] Authenticating request...'
+        msg = msg + " " + "[INFO] DB creation requested..."
+        msg = msg + " " + "[INFO] Authenticating request..."
 
         auth_result = authenticate_request(username, password)
     else:
         req = "internal_method_call"
-        src_ip = ip_addr
+        src_ip = "localhost"
 
-        msg = msg + ' ' + '[INFO] DB creation requested...'
+        msg = msg + " " + "[INFO] DB creation requested..."
         auth_result = 1
 
-    if auth_result:                
+    if auth_result:
         global cursor
         try:
-            msg = msg + ' ' + '[INFO] DB creation initiated...'
+            msg = msg + " " + "[INFO] DB creation initiated..."
             # Delete any old data
-            cursor.execute('''DROP TABLE IF EXISTS employees''')
+            cursor.execute("""DROP TABLE IF EXISTS employees""")
             # Create a table to store employee information
-            cursor.execute('''CREATE TABLE IF NOT EXISTS employees
+            cursor.execute(
+                """CREATE TABLE IF NOT EXISTS employees
                               (employee_id INTEGER PRIMARY KEY,
                               pin INTEGER,
                               name TEXT,
-                              dob TEXT)''')
+                              dob TEXT)"""
+            )
             # Create employee data
-            employee_1 = [101,   5993,   "Dwayne Johnson",  "1972-05-02"]
-            employee_2 = [102,   2468,   "Shania Twain",    "1965-08-28"]
-            employee_3 = [103,   8723,   "Chris Rock",      "1965-02-07"]
-            employee_4 = [104,   9205,   "Rafael Grossi",   "1961-01-29"]
+            employee_1 = [101, 5993, "Dwayne Johnson", "1972-05-02"]
+            employee_2 = [102, 2468, "Shania Twain", "1965-08-28"]
+            employee_3 = [103, 8723, "Chris Rock", "1965-02-07"]
+            employee_4 = [104, 9205, "Rafael Grossi", "1961-01-29"]
             # Iterate through the employees
             employees = [employee_1, employee_2, employee_3, employee_4]
             for employee in employees:
-                msg = msg + ' ' + '[INFO] Inserting {} into the database...'.format(employee)
+                msg = (
+                    msg
+                    + " "
+                    + "[INFO] Inserting {} into the database...".format(employee)
+                )
                 # Insert the employee information into the database
-                cursor.execute("INSERT INTO employees VALUES (?, ?, ?, ?)", (employee[0], employee[1], employee[2], employee[3]))
+                cursor.execute(
+                    "INSERT INTO employees VALUES (?, ?, ?, ?)",
+                    (employee[0], employee[1], employee[2], employee[3]),
+                )
             # Commit the changes to the database
             conn.commit()
-            msg = msg + ' ' + '[INFO] Database created successfully.'
+            msg = msg + " " + "[INFO] Database created successfully."
         except:
-            msg = msg + ' ' + '[FATAL] Error in database creation...'
-            log('system_state.log', req, src_ip, 2, msg)
+            msg = msg + " " + "[FATAL] Error in database creation..."
+            log("system_state.log", req, src_ip, 2, msg)
             sys.exit(0)
     else:
-        msg = msg + ' ' +  "[FAIL] Authentication failed."
+        msg = msg + " " + "[FAIL] Authentication failed."
 
-    log('system_state.log', req, src_ip, 0, msg)
+    log("system_state.log", req, src_ip, 0, msg)
     return jsonify(message=msg)
-               
+
 
 # Route to read all data from the database
 # Requires:			None, but requests are authenticated
 # Returns:			JSON(data:list OR msg:string) - a JSON endoded list of the database, row by row
 # Expected Action:	Authenticate request, execute query, return results or message
-@app.route('/read_all_data', methods=['GET','POST'])
+@app.route("/read_all_data", methods=["GET", "POST"])
 def read_all_data():
     global cursor
 
-    msg = ''
-    
+    msg = ""
+
     username = request.authorization.username
     password = request.authorization.password
 
@@ -241,35 +240,35 @@ def read_all_data():
     auth_result = authenticate_request(username, password)
 
     if auth_result:
-        msg = msg + ' ' + '[INFO] Reading all data from database.'
+        msg = msg + " " + "[INFO] Reading all data from database."
         try:
-            cursor.execute('''SELECT * FROM employees;''')
+            cursor.execute("""SELECT * FROM employees;""")
             db_rows = cursor.fetchall()
-            msg = msg + ' ' + '[INFO] Data read successfully.'
-            log('read_all.log', req, src_ip, 0, msg)
+            msg = msg + " " + "[INFO] Data read successfully."
+            log("read_all.log", req, src_ip, 0, msg)
             return jsonify(data=db_rows)
         except Exception as e:
-            msg = msg + '[ERROR] Error executing command! Could not read all data.'
-            
-            log('read_all.log', req, src_ip, 1, msg)
+            msg = msg + "[ERROR] Error executing command! Could not read all data."
+
+            log("read_all.log", req, src_ip, 1, msg)
             return jsonify(message=msg)
     else:
         msg = msg + "[FAIL] Authentication failed."
-        log('read_all.log', req, src_ip, 1, msg)
+        log("read_all.log", req, src_ip, 1, msg)
         return jsonify(message=msg)
 
 
 # Route to adjust the sensitivity threshold for facial recognition confidence scores
 # Requires:			new_threshold:float - the new sensitivity threshold, between 0 and 1
 # Returns:			None
-# Expected Action:	Receive threshold, sanity check, edit sensitivity, log 
-@app.route('/set_sensitivity/<threshold>', methods=['GET', 'POST'])
+# Expected Action:	Receive threshold, sanity check, edit sensitivity, log
+@app.route("/set_sensitivity/<threshold>", methods=["GET", "POST"])
 def set_sensitivity(threshold):
     global sensitivity_threshold
-    
+
     req = str(request)
     src_ip = str(request.remote_addr)
-    
+
     try:
         threshold = float(threshold)
         if threshold > 1.0:
@@ -278,11 +277,11 @@ def set_sensitivity(threshold):
             sensitivity_threshold = 0
         else:
             sensitivity_threshold = threshold
-        msg = f'[INFO] New sensitivity threshold set to {sensitivity_threshold}'
-        log('threshold.log', req, src_ip, 0, msg)
+        msg = f"[INFO] New sensitivity threshold set to {sensitivity_threshold}"
+        log("threshold.log", req, src_ip, 0, msg)
     except Exception as e:
-        msg = f'[ERROR] Cannot parse the following supplied input: <{threshold}>.'
-        log('config.log', req, src_ip, 1, msg)
+        msg = f"[ERROR] Cannot parse the following supplied input: <{threshold}>."
+        log("config.log", req, src_ip, 1, msg)
         print(e)
     return jsonify(msg)
 
@@ -388,12 +387,10 @@ def access_request():
         log('access.log', req, src_ip, 1, msg)
         return jsonify(auth_result=auth_result, message=msg)
    
-
     # Log the result.
     log('access.log', req, src_ip, 0, msg)
     
     return jsonify(auth_result=auth_result, message=msg)
-    
 
 
 # Function to open a connection to the employees database
@@ -404,48 +401,52 @@ def db_connect():
     with app.app_context():
         global conn
         global cursor
-        
+
         req = "internal_method_call"
-        src_ip = ip_addr
-        msg = '[INFO] Connecting to database.'
-        
+        src_ip = "localhost"
+        msg = "[INFO] Connecting to database."
+
         try:
             # Create a connection to the database (or create a new one if it doesn't exist)
-            conn = sqlite3.connect('employees.db', check_same_thread=False)
+            conn = sqlite3.connect("employees.db", check_same_thread=False)
             # Create a cursor object to execute SQL commands
             cursor = conn.cursor()
-            msg = msg + ' ' + '[INFO] Connected successfully to database.'
-            log('db_conn.log',  req, src_ip, 0, msg)
+            msg = msg + " " + "[INFO] Connected successfully to database."
+            log("db_conn.log", req, src_ip, 0, msg)
         except:
-            msg = msg + ' ' + '[FATAL] Database connection failed - check .db file exists. Exiting program.'
-            log('db_conn.log', req, src_ip, 2, msg)
+            msg = (
+                msg
+                + " "
+                + "[FATAL] Database connection failed - check .db file exists. Exiting program."
+            )
+            log("db_conn.log", req, src_ip, 2, msg)
             sys.exit(0)
 
 
 # Function to catch ctrl+c inputs and close the connection
 # Requires:			sig:signal - the signal to close the connection
-#					frame:frame - unsure
+# 					frame:frame - unsure
 # Returns:			None
 # Expected Action:	Program exits with error message and database connection closed gracefully.
 def signal_handler(sig, frame):
     global conn
     conn.close()
     msg = "[EXIT] Program terminated. Exiting gracefully..."
-    #log('system_state.log', 'CTRL+C', ip_addr, 2, msg)
+    # log('system_state.log', 'CTRL+C', ip_addr, 2, msg)
     sys.exit(0)
 
-  
 
 # Main Program!
-if __name__ == '__main__':
-    print('[START] Program started.')
+if __name__ == "__main__":
+    print("[START] Program started.")
     signal.signal(signal.SIGINT, signal_handler)
     db_connect()
     if SKIP_SETUP == False:
-        with app.test_request_context('/setup_db', method='POST'):
+        with app.test_request_context("/setup_db", method="POST"):
             setup_db()
     else:
-        print('[INFO] Skipping database initialisation.')
+        print("[INFO] Skipping database initialisation.")
     flask_msg = "[FLASK] Starting Flask Server..."
-    log('system_state.log', '__main__', ip_addr, 0, flask_msg)
-    app.run(host = ip_addr, port = port)
+    
+    log("system_state.log", "__main__", "localhost", 0, flask_msg)
+    app.run()
