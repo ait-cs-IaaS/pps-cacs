@@ -9,6 +9,10 @@ import pprint
 import base64
 import requests
 
+from flask_cors import CORS
+
+
+
 
 # Define DB objects
 conn = None
@@ -24,6 +28,9 @@ if len(sys.argv) > 1 and "initdb" in sys.argv:
 
 # Define app, ip address, and port number
 app = Flask(__name__)
+
+
+CORS(app)
 # ip_addr =  '192.168.10.66'
 # port = 4040
 
@@ -436,6 +443,41 @@ def signal_handler(sig, frame):
     sys.exit(0)
 
 
+
+
+def format_all_log(input_file, output_file):
+    # Read data from the input file
+    with open(input_file, 'r') as file:
+        log_entries = file.read().strip()
+ 
+    # Modify the delimiter to properly split JSON objects
+    json_objects = []
+    start = 0
+    for end in range(len(log_entries)):
+        if log_entries[end] == '}':
+            json_objects.append(json.loads(log_entries[start:end + 1]))
+            start = end + 1
+ 
+    # Write formatted data into the output JSON file
+    with open(output_file, 'w') as file:
+        file.write(json.dumps(json_objects, indent=4))
+ 
+# Example usage:
+input_file_path = 'log/all.log'
+output_file_path = 'formatted_all.log.json'
+format_all_log(input_file_path, output_file_path)
+
+
+
+@app.route('/api/get_data', methods=['GET'])
+def get_data():
+    # Read your JSON file and return it
+    # For simplicity, let's assume you have a file named data.json in the same directory
+    with open('formatted_all.log.json', 'r') as file:
+        data = file.read()
+    return data
+
+
 # Main Program!
 if __name__ == "__main__":
     print("[START] Program started.")
@@ -449,4 +491,4 @@ if __name__ == "__main__":
     flask_msg = "[FLASK] Starting Flask Server..."
     
     log("system_state.log", "__main__", "localhost", 0, flask_msg)
-    app.run()
+    app.run(debug=True, port=8001)
