@@ -1,125 +1,76 @@
 [
                     {
-                                        "timestamp": "16-01-2024 @ 11:49:13",
-                                        "request": "internal_method_call",
-                                        "source_ip": "localhost",
-                                        "log_type": "INFO",
-                                        "log_content": "[INFO] Connecting to database. [INFO] Connected successfully to database."
-                    },
-                    {
-                                        "timestamp": "16-01-2024 @ 11:49:13",
+                                        "timestamp": "24-01-2024 @ 10:19:46",
                                         "request": "__main__",
                                         "source_ip": "localhost",
                                         "log_type": "INFO",
                                         "log_content": "[FLASK] Starting Flask Server..."
                     },
                     {
-                                        "timestamp": "17-01-2024 @ 09:24:07",
+                                        "timestamp": "24-01-2024 @ 10:19:46",
                                         "request": "internal_method_call",
                                         "source_ip": "localhost",
                                         "log_type": "INFO",
                                         "log_content": "[INFO] Connecting to database. [INFO] Connected successfully to database."
                     },
                     {
-                                        "timestamp": "17-01-2024 @ 09:24:07",
+                                        "timestamp": "24-01-2024 @ 09:31:38",
                                         "request": "__main__",
                                         "source_ip": "localhost",
                                         "log_type": "INFO",
                                         "log_content": "[FLASK] Starting Flask Server..."
                     },
                     {
-                                        "timestamp": "17-01-2024 @ 09:24:07",
+                                        "timestamp": "24-01-2024 @ 09:31:38",
                                         "request": "internal_method_call",
                                         "source_ip": "localhost",
                                         "log_type": "INFO",
                                         "log_content": "[INFO] Connecting to database. [INFO] Connected successfully to database."
                     },
                     {
-                                        "timestamp": "17-01-2024 @ 09:24:07",
+                                        "timestamp": "24-01-2024 @ 09:31:38",
                                         "request": "__main__",
                                         "source_ip": "localhost",
                                         "log_type": "INFO",
                                         "log_content": "[FLASK] Starting Flask Server..."
                     },
                     {
-                                        "timestamp": "18-01-2024 @ 11:00:22",
+                                        "timestamp": "24-01-2024 @ 09:31:38",
                                         "request": "internal_method_call",
                                         "source_ip": "localhost",
                                         "log_type": "INFO",
                                         "log_content": "[INFO] Connecting to database. [INFO] Connected successfully to database."
                     },
                     {
-                                        "timestamp": "18-01-2024 @ 11:00:22",
+                                        "timestamp": "22-01-2024 @ 09:07:28",
                                         "request": "__main__",
                                         "source_ip": "localhost",
                                         "log_type": "INFO",
                                         "log_content": "[FLASK] Starting Flask Server..."
                     },
                     {
-                                        "timestamp": "18-01-2024 @ 11:00:22",
+                                        "timestamp": "22-01-2024 @ 09:07:28",
                                         "request": "internal_method_call",
                                         "source_ip": "localhost",
                                         "log_type": "INFO",
                                         "log_content": "[INFO] Connecting to database. [INFO] Connected successfully to database."
                     },
                     {
-                                        "timestamp": "18-01-2024 @ 11:00:22",
+                                        "timestamp": "22-01-2024 @ 09:07:27",
                                         "request": "__main__",
                                         "source_ip": "localhost",
                                         "log_type": "INFO",
                                         "log_content": "[FLASK] Starting Flask Server..."
                     },
                     {
-                                        "timestamp": "18-01-2024 @ 21:13:36",
+                                        "timestamp": "22-01-2024 @ 09:07:27",
                                         "request": "internal_method_call",
                                         "source_ip": "localhost",
                                         "log_type": "INFO",
                                         "log_content": "[INFO] Connecting to database. [INFO] Connected successfully to database."
                     },
                     {
-                                        "timestamp": "18-01-2024 @ 21:13:36",
-                                        "request": "__main__",
-                                        "source_ip": "localhost",
-                                        "log_type": "INFO",
-                                        "log_content": "[FLASK] Starting Flask Server..."
-                    },
-                    {
-                                        "timestamp": "18-01-2024 @ 21:13:37",
-                                        "request": "internal_method_call",
-                                        "source_ip": "localhost",
-                                        "log_type": "INFO",
-                                        "log_content": "[INFO] Connecting to database. [INFO] Connected successfully to database."
-                    },
-                    {
-                                        "timestamp": "18-01-2024 @ 21:13:37",
-                                        "request": "__main__",
-                                        "source_ip": "localhost",
-                                        "log_type": "INFO",
-                                        "log_content": "[FLASK] Starting Flask Server..."
-                    },
-                    {
-                                        "timestamp": "20-01-2024 @ 11:44:23",
-                                        "request": "internal_method_call",
-                                        "source_ip": "localhost",
-                                        "log_type": "INFO",
-                                        "log_content": "[INFO] Connecting to database. [INFO] Connected successfully to database."
-                    },
-                    {
-                                        "timestamp": "20-01-2024 @ 11:44:23",
-                                        "request": "__main__",
-                                        "source_ip": "localhost",
-                                        "log_type": "INFO",
-                                        "log_content": "[FLASK] Starting Flask Server..."
-                    },
-                    {
-                                        "timestamp": "20-01-2024 @ 11:44:24",
-                                        "request": "internal_method_call",
-                                        "source_ip": "localhost",
-                                        "log_type": "INFO",
-                                        "log_content": "[INFO] Connecting to database. [INFO] Connected successfully to database."
-                    },
-                    {
-                                        "timestamp": "20-01-2024 @ 11:44:24",
+                                        "timestamp": "21-01-2024 @ 08:53:59",
                                         "request": "__main__",
                                         "source_ip": "localhost",
                                         "log_type": "INFO",
@@ -138,5 +89,54 @@
                                         "source_ip": "localhost",
                                         "log_type": "INFO",
                                         "log_content": "[FLASK] Starting Flask Server..."
+                    },
+                    {
+                                        "timestamp": "21-01-2024 @ 08:53:59",
+                                        "request": "internal_method_call",
+                                        "source_ip": "localhost",
+                                        "log_type": "INFO",
+                                        "log_content": "[INFO] Connecting to database. [INFO] Connected successfully to database."
+                    },
+                    {
+                                        "timestamp": "20-01-2024 @ 11:44:24",
+                                        "request": "__main__",
+                                        "source_ip": "localhost",
+                                        "log_type": "INFO",
+                                        "log_content": "[FLASK] Starting Flask Server..."
+                    },
+                    {
+                                        "timestamp": "20-01-2024 @ 11:44:24",
+                                        "request": "internal_method_call",
+                                        "source_ip": "localhost",
+                                        "log_type": "INFO",
+                                        "log_content": "[INFO] Connecting to database. [INFO] Connected successfully to database."
+                    },
+                    {
+                                        "timestamp": "20-01-2024 @ 11:44:23",
+                                        "request": "__main__",
+                                        "source_ip": "localhost",
+                                        "log_type": "INFO",
+                                        "log_content": "[FLASK] Starting Flask Server..."
+                    },
+                    {
+                                        "timestamp": "20-01-2024 @ 11:44:23",
+                                        "request": "internal_method_call",
+                                        "source_ip": "localhost",
+                                        "log_type": "INFO",
+                                        "log_content": "[INFO] Connecting to database. [INFO] Connected successfully to database."
+                    },
+                    {
+                                        "timestamp": "18-01-2024 @ 21:13:37",
+                                        "request": "__main__",
+                                        "source_ip": "localhost",
+                                        "log_type": "INFO",
+                                        "log_content": "[FLASK] Starting Flask Server..."
+                    },
+                    {
+                                        "timestamp": "18-01-2024 @ 21:13:37",
+                                        "request": "internal_method_call",
+                                        "source_ip": "localhost",
+                                        "log_type": "INFO",
+                                        "log_content": "[INFO] Connecting to database. [INFO] Connected successfully to database."
                     }
 ]
